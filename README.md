@@ -29,4 +29,4 @@ Transformar bitácoras operativas dispersas en un modelo analítico estructurado
 2. **Uso local con tus propios datos:**
    - Descarga los archivos del repositorio.
    - Registra tus lecturas diarias en `Control_Diario_Desalinizadoras_Muestra.xlsx` o conéctalo a tu instancia de SQL Server ejecutando `schema_desalinizadoras.sql`.
-   - En Power BI Desktop, vincula las tablas de Excel o SQL mediante Power Query para actualizar tus reportes ejecutivos.
+   - Vincula las tablas de Excel o SQL mediante Power Query para actualizar tus reportes ejecutivos.
