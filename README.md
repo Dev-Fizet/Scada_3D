@@ -13,7 +13,7 @@ Transformar bitácoras operativas dispersas en un modelo analítico estructurado
 
 ## Stack tecnológico
 - **Frontend / Visualización Web:** HTML5, CSS3, JavaScript, Chart.js.
-- **Analítica y Bitácoras:** Microsoft Excel (fórmulas dinámicas, formato condicional), Power BI (modelado estrella, DAX y Power Query M).
+- **Analítica y Bitácoras:** Microsoft Excel (fórmulas dinámicas, formato condicional), Power BI & Power Query.
 - **Base de Datos:** SQL Server (DDL y vistas analíticas).
 
 ## Indicadores clave (KPIs) monitoreados
