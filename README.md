@@ -19,7 +19,7 @@ Transformar bitácoras operativas dispersas en un modelo analítico estructurado
 ## Indicadores clave (KPIs) monitoreados
 - **Producción y recuperación:** Caudales de alimentación, permeado y rechazo, porcentaje de recuperación hidráulica y producción específica normalizada.
 - **Calidad de agua y rechazo de sales:** Seguimiento de conductividad para el cálculo automático de rechazo de sales:
-- **Integridad de membranas:** Monitoreo de presión diferencial  en filtros multimedia/cartucho, ultrafiltración (UF) y bastidores de ósmosis inversa, además del índice de envejecimiento de membranas .
+- **Integridad de membranas:** Monitoreo de presión diferencial  en filtros multimedia/cartucho y bastidores de ósmosis inversa, además del índice de envejecimiento de membranas .
 - **Eficiencia energética:** Cálculo del consumo específico de energía .
 - **Trazabilidad CIP y mantenimiento:** Control histórico de limpiezas químicas ácidas/alcalinas, cambios de filtros cartucho y retrolavados de medios filtrantes.
 
