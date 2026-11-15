@@ -1,0 +1,12 @@
+# Archivos temporales de Office
+~$*
+*.tmp
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Credenciales y configuraciones locales
+.env
+*.cred
+config_local.*
