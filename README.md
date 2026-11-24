@@ -15,7 +15,7 @@ Transformar bitácoras operativas dispersas en un modelo analítico estructurado
 2. En Vercel selecciona **Add New > Project**, importa el repositorio y deja `Framework Preset` en **Other**.
 3. Usa el directorio raíz como **Root Directory** y despliega sin comando de compilación.
 4. Publica el sitio y abre la URL HTTPS.
-5. Presiona **Conectar** en el tablero. El servidor predeterminado es `wss://demo.nats.io:443` y el subject predeterminado es `planta.>`.
+5. Presiona **Conectar** en el tablero. El servidor predeterminado es `wss://demo.nats.io:8443` y el subject predeterminado es `planta.>`.
 
 La página usa el emisor OT público del taller y recibe JSON publicado en el subject `planta.linea1.reactor.telemetria`.
 - `Control_Diario_Desalinizadoras_Muestra.xlsx`: Bitácora operativa estructurada en Excel con fórmulas automatizadas, formato condicional, resumen ejecutivo con gráficos y registro de eventos CIP y retrolavados de prefiltración.
