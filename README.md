@@ -6,7 +6,18 @@ Solución integral de ingeniería de procesos, analítica operativa y visualizac
 Transformar bitácoras operativas dispersas en un modelo analítico estructurado y visual que permita evaluar el desempeño real de las unidades desalinizadoras, anticipar el ensuciamiento (*fouling* / *scaling*) de membranas y optimizar el consumo específico de energía y productos químicos.
 
 ## Arquitectura y archivos del repositorio
-- `index.html`: Tablero web interactivo de monitoreo operativo (compatible con **GitHub Pages**). Permite filtrar por unidad desalinizadora, visualizar tendencias de rechazo de sales, presión diferencial , consumo energético y cargar archivos CSV propios.
+- `index.html`: Ejemplo educativo de monitoreo industrial en tiempo real mediante NATS WebSocket. Recibe el payload del emisor OT (`equipo`, `temperatura_c`, `nivel_pct`, `bomba_activa`) y puede mostrar múltiples equipos.
+- `vercel.json`: Configuración mínima para despliegue de la página estática en Vercel.
+
+## Desplegar en Vercel
+
+1. Sube estos archivos a GitHub: `index.html`, `vercel.json` y `README.md`.
+2. En Vercel selecciona **Add New > Project**, importa el repositorio y deja `Framework Preset` en **Other**.
+3. Usa el directorio raíz como **Root Directory** y despliega sin comando de compilación.
+4. Publica el sitio y abre la URL HTTPS.
+5. Presiona **Conectar** en el tablero. El servidor predeterminado es `wss://demo.nats.io:443` y el subject predeterminado es `planta.>`.
+
+La página usa el emisor OT público del taller y recibe JSON publicado en el subject `planta.linea1.reactor.telemetria`.
 - `Control_Diario_Desalinizadoras_Muestra.xlsx`: Bitácora operativa estructurada en Excel con fórmulas automatizadas, formato condicional, resumen ejecutivo con gráficos y registro de eventos CIP y retrolavados de prefiltración.
 - `Dosificacion_Osmosis_Inversa_Muestra.xlsx`: Calculadora técnica de dosificación química en línea (antiincrustante, bisulfito de sodio, hipoclorito) y preparación de soluciones de limpieza química (CIP).
 - `schema_desalinizadoras.sql`: Modelo relacional en SQL Server (tablas de dimensiones, tablas de hechos y vistas analíticas de KPIs normalizados).
