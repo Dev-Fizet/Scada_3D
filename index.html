@@ -152,6 +152,63 @@
   <!-- TOAST NOTIFICATION SYSTEM (Sin alert/confirm) -->
   <div id="toastContainer" class="fixed top-16 right-4 z-50 flex flex-col gap-2 max-w-md pointer-events-none"></div>
 
+  <!-- CONFIGURACIÓN NATS / MULTIEQUIPO -->
+  <div id="natsModal" class="fixed inset-0 z-[60] hidden items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
+    <div class="w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-2xl border border-sky-700/50 bg-slate-900 shadow-2xl flex flex-col">
+      <div class="px-5 py-4 border-b border-slate-800 flex items-center justify-between">
+        <div>
+          <h2 class="text-base font-bold text-white">Configuración de telemetría NATS</h2>
+          <p class="text-[11px] text-slate-400 mt-0.5">Conexión WebSocket segura requerida al publicar desde Vercel.</p>
+        </div>
+        <button id="btnCloseNats" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700">×</button>
+      </div>
+      <div class="p-5 overflow-y-auto space-y-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <label class="text-[11px] text-slate-300">Servidor WebSocket
+            <input id="natsServer" value="wss://nats.tu-dominio.com:443" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white font-mono-tech" />
+          </label>
+          <label class="text-[11px] text-slate-300">Subject / wildcard
+            <input id="natsSubject" value="planta.>" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white font-mono-tech" />
+          </label>
+          <label class="text-[11px] text-slate-300">Usuario (opcional)
+            <input id="natsUser" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white" autocomplete="username" />
+          </label>
+          <label class="text-[11px] text-slate-300">Contraseña / token (opcional)
+            <input id="natsPass" type="password" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white" autocomplete="current-password" />
+          </label>
+        </div>
+
+        <div class="rounded-xl border border-slate-800 bg-slate-950/50 p-3">
+          <div class="text-xs font-bold text-slate-200 mb-3">Mapeo de campos JSON</div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <label class="text-[11px] text-slate-300">Equipo
+              <input id="natsFieldEquipo" value="equipo" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-2 py-2 text-xs text-white font-mono-tech" />
+            </label>
+            <label class="text-[11px] text-slate-300">Temperatura
+              <input id="natsFieldTemp" value="temperatura_c" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-2 py-2 text-xs text-white font-mono-tech" />
+            </label>
+            <label class="text-[11px] text-slate-300">Nivel
+              <input id="natsFieldNivel" value="nivel_pct" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-2 py-2 text-xs text-white font-mono-tech" />
+            </label>
+            <label class="text-[11px] text-slate-300">Bomba
+              <input id="natsFieldBomba" value="bomba_activa" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-2 py-2 text-xs text-white font-mono-tech" />
+            </label>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between gap-3">
+          <button id="btnAddNatsRoute" class="rounded-lg bg-sky-600 hover:bg-sky-500 px-4 py-2 text-xs font-bold text-white">Agregar fuente</button>
+          <button id="btnConnectNats" class="rounded-lg border border-emerald-600/60 bg-emerald-950/40 px-4 py-2 text-xs font-bold text-emerald-300">Conectar fuentes</button>
+        </div>
+
+        <div>
+          <div class="text-xs font-bold text-slate-200 mb-2">Fuentes configuradas</div>
+          <div id="natsRoutesList" class="space-y-2"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- 1. BARRA SUPERIOR (HEADER SCADA) -->
   <header class="h-14 px-3 lg:px-4 bg-slate-900/95 border-b border-slate-800 flex items-center justify-between gap-2 shrink-0 z-30">
     <!-- Identidad y Modelo -->
@@ -221,6 +278,11 @@
         <span class="hidden sm:inline">Cargar Excel (.xlsx)</span>
       </button>
 
+      <button id="btnOpenNats" title="Configurar fuentes de telemetría NATS" class="px-2.5 py-1.5 rounded-xl bg-sky-950/80 hover:bg-sky-900 border border-sky-700/60 text-xs font-semibold text-sky-200 flex items-center gap-1.5 transition cursor-pointer">
+        <span class="w-2 h-2 rounded-full bg-sky-400"></span>
+        <span>NATS</span>
+      </button>
+
       <button id="btnToggleISA" title="Alternar paleta ISA-101 High-Performance HMI" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-200 flex items-center gap-1.5 transition cursor-pointer">
         <span id="isaIndicatorDot" class="w-2 h-2 rounded-full bg-sky-400"></span>
         <span>Modo ISA-101</span>
@@ -228,8 +290,8 @@
     </div>
   </header>
 
-  <!-- 2. CINTA SUPERIOR DE 8 KPIS OPERATIVOS -->
-  <section id="kpiRibbon" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 px-3 py-2 bg-slate-950/90 border-b border-slate-800/90 shrink-0 z-20">
+  <!-- 2. CINTA SUPERIOR DE 10 KPIS OPERATIVOS -->
+  <section id="kpiRibbon" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-10 gap-2 px-3 py-2 bg-slate-950/90 border-b border-slate-800/90 shrink-0 z-20">
     <!-- KPI 1: Q Alimentación -->
     <div data-focus="pretratamiento" class="kpi-card bg-slate-900/90 hover:bg-slate-800/90 border border-slate-800 rounded-xl p-2 cursor-pointer transition">
       <div class="flex items-center justify-between text-[11px] text-slate-400">
@@ -332,6 +394,20 @@
         <span class="text-[11px] text-slate-400">psi</span>
       </div>
       <div id="kpiDPPrefSub" class="text-[10px] text-amber-300 truncate">ATENCIÓN PRESIÓN (50.5→50.8)</div>
+    </div>
+
+    <!-- KPI NATS 9: Nivel recibido por telemetría -->
+    <div class="kpi-card bg-slate-900/90 border border-sky-900/60 rounded-xl p-2">
+      <div class="flex items-center justify-between text-[11px] text-slate-400"><span>Nivel NATS</span><span class="text-sky-400">LIVE</span></div>
+      <div class="mt-0.5 flex items-baseline gap-1"><span id="kpiNatsNivel" class="text-base lg:text-lg font-bold font-mono-tech text-sky-300">--</span><span class="text-[11px] text-slate-400">%</span></div>
+      <div id="kpiNatsNivelSub" class="text-[10px] text-slate-400 truncate">Sin telemetría</div>
+    </div>
+
+    <!-- KPI NATS 10: Estado de bomba recibido por telemetría -->
+    <div class="kpi-card bg-slate-900/90 border border-sky-900/60 rounded-xl p-2">
+      <div class="flex items-center justify-between text-[11px] text-slate-400"><span>Bomba NATS</span><span class="text-sky-400">LIVE</span></div>
+      <div class="mt-0.5"><span id="kpiNatsBomba" class="text-base lg:text-lg font-bold font-mono-tech text-slate-300">--</span></div>
+      <div id="kpiNatsBombaSub" class="text-[10px] text-slate-400 truncate">Sin telemetría</div>
     </div>
   </section>
 
@@ -669,6 +745,10 @@
      * ============================================================================
      */
     const STORAGE_KEY = '_SCADA_3D_DATA_V1';
+    const NATS_STORAGE_KEY = '_SCADA_3D_NATS_V1';
+    let natsModule = null;
+    const natsConnections = new Map();
+    let natsRoutes = [];
 
     let appState = {
       dataset: null,
@@ -699,6 +779,187 @@
         console.warn('No se pudo leer localStorage, usando datos base:', e);
       }
       appState.dataset = buildDefaultDataset();
+    }
+
+    function loadNatsRoutes() {
+      try { natsRoutes = JSON.parse(localStorage.getItem(NATS_STORAGE_KEY) || '[]'); }
+      catch (e) { natsRoutes = []; }
+      if (!Array.isArray(natsRoutes)) natsRoutes = [];
+    }
+
+    function saveNatsRoutes() {
+      localStorage.setItem(NATS_STORAGE_KEY, JSON.stringify(natsRoutes));
+      renderNatsRoutes();
+    }
+
+    function getNestedValue(obj, path) {
+      if (!path) return undefined;
+      return String(path).split('.').reduce((value, key) => value && value[key], obj);
+    }
+
+    function getNum(value, fallback = 0) {
+      const num = Number(value);
+      return Number.isFinite(num) ? num : fallback;
+    }
+
+    function makeNatsUnitId(rawName) {
+      const clean = String(rawName || 'Equipo NATS').replace(/[^A-Za-z0-9]/g, '_').replace(/^_+|_+$/g, '').toUpperCase();
+      let id = clean || 'NATS';
+      if (EQUIPOS_META[id]) {
+        let index = 2;
+        while (EQUIPOS_META[`${id}_${index}`]) index++;
+        id = `${id}_${index}`;
+      }
+      return id;
+    }
+
+    function ensureNatsEquipment(rawName) {
+      const name = String(rawName || 'Equipo NATS').trim();
+      const existing = Object.values(EQUIPOS_META).find(meta => meta.Nombre === name);
+      if (existing) return existing.EquipoID;
+      const id = makeNatsUnitId(name);
+      EQUIPOS_META[id] = {
+        EquipoID: id,
+        Nombre: name,
+        Modelo: 'NATS / OT',
+        CaudalNominal_GPM: 0,
+        Housings: 0,
+        ElementosPorHousing: 0,
+        TotalMembranas: 0,
+        Base_Qperm_GPM: 0,
+        LayoutColumnasRO: [0, 0]
+      };
+      const unitSelector = document.getElementById('unitSelector');
+      const option = document.createElement('option');
+      option.value = id;
+      option.className = 'bg-slate-900';
+      option.textContent = `${name} · NATS`;
+      unitSelector.appendChild(option);
+      return id;
+    }
+
+    function receiveNatsPayload(payload, route) {
+      const equipoName = getNestedValue(payload, route.fieldEquipo || 'equipo') || 'Equipo NATS';
+      const unitId = ensureNatsEquipment(equipoName);
+      const now = new Date();
+      const fecha = now.toISOString().slice(0, 10);
+      const hora = now.toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+      const temp = getNum(getNestedValue(payload, route.fieldTemp || 'temperatura_c'), null);
+      const nivel = getNum(getNestedValue(payload, route.fieldNivel || 'nivel_pct'), null);
+      const bombaRaw = getNestedValue(payload, route.fieldBomba || 'bomba_activa');
+      const bombaActiva = typeof bombaRaw === 'string' ? /^(1|true|si|sí|on|activa)$/i.test(bombaRaw) : Boolean(bombaRaw);
+
+      const isTempAlert = temp !== null && temp >= 98;
+      const isLevelAlert = nivel !== null && nivel >= 90;
+      const estado = isTempAlert || isLevelAlert ? 'ALERTA' : 'NORMAL';
+      const recordId = `NATS-${unitId}-${now.getTime()}`;
+      const record = {
+        RegistroID: recordId,
+        Fecha: fecha,
+        Hora: hora,
+        EquipoID: unitId,
+        Turno: 'Tiempo real',
+        Auxiliar: 'NATS',
+        Fuga_General: 'NO',
+        Portamembranas_Sin_Fugas: 'SI',
+        Ruido_Anormal: 'NO',
+        Vibracion_Anormal: 'NO',
+        Temp_Motor_Normal: isTempAlert ? 'NO' : 'SI',
+        Fuga_Sello_Bomba: 'NO',
+        Nivel_Quimico_OK: 'SI',
+        Dosificacion_OK: 'SI',
+        P_Entrada_Prefiltro_psi: 0,
+        P_Salida_Prefiltro_psi: 0,
+        DP_Prefiltro_psi: 0,
+        P_Alimentacion_psi: getNum(payload.P_Alimentacion_psi),
+        P_AltaPresion_psi: getNum(payload.P_AltaPresion_psi),
+        P_Rechazo_psi: getNum(payload.P_Rechazo_psi),
+        Q_Alimentacion_GPM: getNum(payload.Q_Alimentacion_GPM),
+        Q_Permeado_GPM: getNum(payload.Q_Permeado_GPM),
+        Q_Rechazo_GPM: getNum(payload.Q_Rechazo_GPM),
+        Conductividad_Alim_uScm: getNum(payload.Conductividad_Alim_uScm),
+        Conductividad_Perm_uScm: getNum(payload.Conductividad_Perm_uScm),
+        Temperatura_C: temp !== null ? temp : 0,
+        Nivel_pct: nivel !== null ? nivel : 0,
+        Bomba_activa: bombaActiva,
+        Recuperacion_pct: getNum(payload.Recuperacion_pct),
+        PasoSales_pct: getNum(payload.PasoSales_pct),
+        RechazoSales_pct: getNum(payload.RechazoSales_pct),
+        Base_Qperm_GPM: getNum(payload.Base_Qperm_GPM),
+        Perdida_Produccion_pct: getNum(payload.Perdida_Produccion_pct),
+        Alarma_BajaPresion: 'NO',
+        Alarma_AltaPresion: isTempAlert ? 'SI' : 'NO',
+        EstadoPrefiltro: 'NORMAL',
+        EstadoMembranas: estado,
+        EstadoCalidad: estado,
+        EstadoGeneral: estado,
+        Observaciones: `Datos NATS recibidos de ${route.subject}. ${bombaActiva ? 'Bomba activa' : 'Bomba detenida'}.`,
+        _Nats: true
+      };
+
+      appState.dataset.diario.push(record);
+      appState.selectedUnit = unitId;
+      appState.selectedRecordId = recordId;
+      document.getElementById('unitSelector').value = unitId;
+      refreshAllUI();
+      document.getElementById('dataSourceBadge').innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> NATS · ${equipoName} · ${hora}`;
+    }
+
+    async function connectNatsRoutes() {
+      try {
+        if (!natsModule) natsModule = await import('https://esm.sh/nats.ws@1.29.3');
+        for (const route of natsRoutes) {
+          const key = route.server;
+          if (natsConnections.has(key)) continue;
+          try {
+            const nc = await natsModule.connect({
+              servers: [route.server],
+              name: 'SCADA-3D-Vercel',
+              ...(route.user ? { user: route.user } : {}),
+              ...(route.pass ? { pass: route.pass } : {}),
+              timeout: 5000
+            });
+            natsConnections.set(key, nc);
+            const sub = nc.subscribe(route.subject);
+            (async () => {
+              const sc = natsModule.StringCodec();
+              for await (const msg of sub) {
+                try {
+                  const text = sc.decode(msg.data);
+                  const payload = JSON.parse(text);
+                  receiveNatsPayload(payload, route);
+                } catch (error) {
+                  console.warn('Mensaje NATS no válido:', error);
+                }
+              }
+            })();
+            nc.closed().then(() => natsConnections.delete(key)).catch(error => console.warn('NATS cerrado:', error));
+            showToast('NATS conectado', `${route.subject} · ${route.server}`, 'success');
+          } catch (error) {
+            showToast('Error NATS', `${route.server}: ${error.message}`, 'error');
+          }
+        }
+      } catch (error) {
+        showToast('No se pudo cargar NATS', error.message, 'error');
+      }
+    }
+
+    function renderNatsRoutes() {
+      const container = document.getElementById('natsRoutesList');
+      if (!container) return;
+      if (!natsRoutes.length) {
+        container.innerHTML = '<div class="rounded-lg border border-dashed border-slate-700 p-3 text-xs text-slate-500">No hay fuentes configuradas.</div>';
+        return;
+      }
+      container.innerHTML = natsRoutes.map((route, index) => `
+        <div class="rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 flex items-center justify-between gap-3">
+          <div class="min-w-0"><div class="text-xs text-sky-300 font-mono-tech truncate">${route.subject}</div><div class="text-[10px] text-slate-500 truncate">${route.server}</div></div>
+          <button data-nats-remove="${index}" class="shrink-0 rounded-md border border-rose-800/60 px-2 py-1 text-[10px] text-rose-300 hover:bg-rose-950/40">Eliminar</button>
+        </div>`).join('');
+      container.querySelectorAll('[data-nats-remove]').forEach(button => button.addEventListener('click', () => {
+        natsRoutes.splice(Number(button.dataset.natsRemove), 1);
+        saveNatsRoutes();
+      }));
     }
 
     function showToast(title, message, type = 'info') {
@@ -1953,6 +2214,25 @@
         ? 'text-base lg:text-lg font-bold font-mono-tech text-rose-400'
         : (dpWarn ? 'text-base lg:text-lg font-bold font-mono-tech text-amber-400' : 'text-base lg:text-lg font-bold font-mono-tech text-emerald-400');
       document.getElementById('kpiDPPrefSub').textContent = `${rec.EstadoPrefiltro} (${rec.P_Entrada_Prefiltro_psi}→${rec.P_Salida_Prefiltro_psi})`;
+
+      // KPI 9–10: Telemetría NATS
+      const nivelEl = document.getElementById('kpiNatsNivel');
+      const bombaEl = document.getElementById('kpiNatsBomba');
+      if (rec._Nats) {
+        nivelEl.textContent = rec.Nivel_pct.toFixed(1);
+        document.getElementById('kpiNatsNivelSub').textContent = rec.EstadoGeneral;
+        bombaEl.textContent = rec.Bomba_activa ? 'ACTIVA' : 'DETENIDA';
+        bombaEl.className = rec.Bomba_activa
+          ? 'text-base lg:text-lg font-bold font-mono-tech text-emerald-400'
+          : 'text-base lg:text-lg font-bold font-mono-tech text-slate-400';
+        document.getElementById('kpiNatsBombaSub').textContent = `${rec.Fecha} · ${rec.Hora}`;
+      } else {
+        nivelEl.textContent = '--';
+        document.getElementById('kpiNatsNivelSub').textContent = 'Sin telemetría';
+        bombaEl.textContent = '--';
+        bombaEl.className = 'text-base lg:text-lg font-bold font-mono-tech text-slate-300';
+        document.getElementById('kpiNatsBombaSub').textContent = 'Sin telemetría';
+      }
     }
 
     function updateCharts() {
@@ -2239,6 +2519,43 @@
     }
 
     function bindUIEvents() {
+      const natsModal = document.getElementById('natsModal');
+      document.getElementById('btnOpenNats').addEventListener('click', () => {
+        natsModal.classList.remove('hidden');
+        natsModal.classList.add('flex');
+        renderNatsRoutes();
+      });
+      document.getElementById('btnCloseNats').addEventListener('click', () => {
+        natsModal.classList.add('hidden');
+        natsModal.classList.remove('flex');
+      });
+      natsModal.addEventListener('click', event => {
+        if (event.target === natsModal) {
+          natsModal.classList.add('hidden');
+          natsModal.classList.remove('flex');
+        }
+      });
+      document.getElementById('btnAddNatsRoute').addEventListener('click', () => {
+        const route = {
+          server: document.getElementById('natsServer').value.trim(),
+          subject: document.getElementById('natsSubject').value.trim(),
+          user: document.getElementById('natsUser').value.trim(),
+          pass: document.getElementById('natsPass').value,
+          fieldEquipo: document.getElementById('natsFieldEquipo').value.trim() || 'equipo',
+          fieldTemp: document.getElementById('natsFieldTemp').value.trim() || 'temperatura_c',
+          fieldNivel: document.getElementById('natsFieldNivel').value.trim() || 'nivel_pct',
+          fieldBomba: document.getElementById('natsFieldBomba').value.trim() || 'bomba_activa'
+        };
+        if (!route.server || !route.subject) {
+          showToast('Configuración incompleta', 'Servidor y subject son obligatorios.', 'warn');
+          return;
+        }
+        natsRoutes.push(route);
+        saveNatsRoutes();
+        showToast('Fuente agregada', route.subject, 'success');
+      });
+      document.getElementById('btnConnectNats').addEventListener('click', connectNatsRoutes);
+
       // Cambio de Unidad (D1..D5)
       document.getElementById('unitSelector').addEventListener('change', e => {
         selectLatestRecordForUnit(e.target.value);
@@ -2384,10 +2701,13 @@
     // Inicialización al cargar ventana
     window.addEventListener('load', () => {
       loadInitialState();
+      loadNatsRoutes();
       init3DScene();
       bindUIEvents();
+      renderNatsRoutes();
       refreshAllUI();
       animate();
+      if (natsRoutes.length) connectNatsRoutes();
     });
   </script>
 </body>
